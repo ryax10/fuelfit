@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /carrito
+Disallow: /mayoristas/carrito
+Disallow: /mis-compras
+Disallow: /perfil
+Disallow: /registro
+Disallow: /login
+Disallow: /api/
+
+Sitemap: https://www.full-vip.com/sitemap.xml
