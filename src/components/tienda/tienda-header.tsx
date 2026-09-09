@@ -20,6 +20,14 @@ const DRAWER_SHOWN_KEY = "ff_drawer_shown";
 const LS_CURRENCY = "ff_may_currency";
 const LS_VIEW = "ff_may_view";
 
+const TICKER_ITEMS = [
+  "🔥 ENVÍO GRATIS en compras +$50.000",
+  "⚡ NUEVOS SUPLEMENTOS DISPONIBLES",
+  "💳 PAGÁ EN CUOTAS SIN INTERÉS",
+  "💪 PRECIO MAYORISTA DESDE 15 UNIDADES",
+  "🚀 ENVÍOS EN 24–48HS A TODO EL PAÍS",
+];
+
 export function TiendaHeader() {
   const p = usePathname();
   const isMayorista = p.startsWith("/mayoristas/tienda") || p.startsWith("/mayoristas/carrito");
@@ -40,7 +48,6 @@ export function TiendaHeader() {
     setViewState((localStorage.getItem(LS_VIEW) as "quick" | "images") || "quick");
   }, []);
 
-  // Sincroniza si el catálogo cambia la preferencia desde otra instancia
   useEffect(() => {
     const sync = () => {
       setCurrencyState((localStorage.getItem(LS_CURRENCY) as "usdt" | "ars") || "usdt");
@@ -50,7 +57,6 @@ export function TiendaHeader() {
     return () => window.removeEventListener("ff-prefs-change", sync);
   }, []);
 
-  // Abre el drawer la primera vez que se agrega un ítem
   useEffect(() => {
     const handler = () => {
       if (!sessionStorage.getItem(DRAWER_SHOWN_KEY)) {
@@ -74,16 +80,33 @@ export function TiendaHeader() {
     window.dispatchEvent(new Event("ff-prefs-change"));
   };
 
+  /* Duplicated items for seamless loop */
+  const tickerContent = [...TICKER_ITEMS, ...TICKER_ITEMS];
+
   return (
     <>
+      {/* ── Announcement ticker ── */}
+      <div className="overflow-hidden bg-violet py-2">
+        <div className="animate-ticker inline-flex items-center gap-8 whitespace-nowrap">
+          {tickerContent.map((item, i) => (
+            <span key={i} className="flex items-center gap-8">
+              <span className="text-[11px] font-bold tracking-wider text-black">{item}</span>
+              <span className="text-black/30 font-bold">·</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Main header ── */}
       <div className="h-px bg-gradient-to-r from-transparent via-violet/30 to-transparent" />
       <header className="sticky top-0 z-50 glass border-b border-border/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-1.5 shrink-0">
-            <Image src="/favicon-logo.jpg" alt="FuelFit" width={38} height={38} className="rounded-lg" priority />
+
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <Image src="/favicon-logo.jpg" alt="FuelFit" width={36} height={36} className="rounded-xl" priority />
             <div className="flex flex-col leading-none">
-              <span className="font-display text-[15px] font-bold tracking-wider text-text-primary">FUELFIT</span>
-              <span className="text-[8px] font-semibold tracking-[0.3em] text-violet">FITNESS STORE</span>
+              <span className="font-display text-[15px] font-extrabold tracking-wider text-text-primary">FUELFIT</span>
+              <span className="text-[8px] font-bold tracking-[0.3em] text-violet">FITNESS STORE</span>
             </div>
           </Link>
 
@@ -100,60 +123,32 @@ export function TiendaHeader() {
           </nav>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* Controles del catálogo mayorista — solo visibles en /mayoristas/tienda */}
             {mounted && showCatalogControls && (
               <>
-                {/* Toggle moneda */}
                 <div className="flex items-center rounded-lg border border-border/60 overflow-hidden">
-                  <button
-                    onClick={() => setCurrency("usdt")}
-                    title="Precios en USDT (dólar)"
-                    className={`flex items-center px-2 py-1.5 transition-all ${currency === "usdt" ? "bg-violet/15" : "opacity-50 hover:opacity-80"}`}
-                  >
+                  <button onClick={() => setCurrency("usdt")} title="Precios en USDT" className={`flex items-center px-2 py-1.5 transition-all ${currency === "usdt" ? "bg-violet/15" : "opacity-50 hover:opacity-80"}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="https://flagcdn.com/w20/us.png" alt="USD" width={20} height={13} className="rounded-sm" />
                   </button>
                   <div className="w-px h-4 bg-border/60" />
-                  <button
-                    onClick={() => setCurrency("ars")}
-                    title="Precios en ARS (pesos)"
-                    className={`flex items-center px-2 py-1.5 transition-all ${currency === "ars" ? "bg-violet/15" : "opacity-50 hover:opacity-80"}`}
-                  >
+                  <button onClick={() => setCurrency("ars")} title="Precios en ARS" className={`flex items-center px-2 py-1.5 transition-all ${currency === "ars" ? "bg-violet/15" : "opacity-50 hover:opacity-80"}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="https://flagcdn.com/w20/ar.png" alt="ARS" width={20} height={13} className="rounded-sm" />
                   </button>
                 </div>
-
-                {/* Toggle vista */}
                 <div className="flex items-center rounded-lg border border-border/60 overflow-hidden">
-                  <button
-                    onClick={() => setView("quick")}
-                    title="Vista rápida"
-                    className={`px-2.5 py-1.5 transition-all ${view === "quick" ? "bg-violet/15 text-violet-light" : "text-text-muted hover:text-text-secondary"}`}
-                  >
-                    <List size={15} />
-                  </button>
+                  <button onClick={() => setView("quick")} title="Vista rápida" className={`px-2.5 py-1.5 transition-all ${view === "quick" ? "bg-violet/15 text-violet-light" : "text-text-muted hover:text-text-secondary"}`}><List size={15} /></button>
                   <div className="w-px h-4 bg-border/60" />
-                  <button
-                    onClick={() => setView("images")}
-                    title="Vista con imágenes"
-                    className={`px-2.5 py-1.5 transition-all ${view === "images" ? "bg-violet/15 text-violet-light" : "text-text-muted hover:text-text-secondary"}`}
-                  >
-                    <Grid3X3 size={15} />
-                  </button>
+                  <button onClick={() => setView("images")} title="Vista con imágenes" className={`px-2.5 py-1.5 transition-all ${view === "images" ? "bg-violet/15 text-violet-light" : "text-text-muted hover:text-text-secondary"}`}><Grid3X3 size={15} /></button>
                 </div>
               </>
             )}
 
-            {/* Carrito */}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="relative flex items-center gap-2 rounded-xl px-3 py-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-all"
-            >
+            <button onClick={() => setDrawerOpen(true)} className="relative flex items-center gap-2 rounded-xl px-3 py-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-all">
               <ShoppingCart size={18} />
               <span className="hidden text-[11px] font-semibold tracking-wider sm:inline uppercase">Carrito</span>
-              {mounted && isMayorista && countMay > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-violet text-[9px] font-bold text-white">{countMay}</span>}
-              {mounted && !isMayorista && count > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-violet text-[9px] font-bold text-white">{count}</span>}
+              {mounted && isMayorista && countMay > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-violet text-[9px] font-bold text-black">{countMay}</span>}
+              {mounted && !isMayorista && count > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-violet text-[9px] font-bold text-black">{count}</span>}
             </button>
 
             <button onClick={() => setOpen(!open)} className="ml-1 rounded-xl p-2 text-text-muted hover:bg-bg-hover lg:hidden">
